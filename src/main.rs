@@ -1,12 +1,20 @@
+//! NEAR House of Stake Security Council task generator
+
 use anyhow::{Context, Result, bail};
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
 const CONFIG_FILE: &str = "hos-ops.toml";
 const TEMPLATE_PATH: &str = "src/template/task-template.md";
-const TASKS_DIR: &str = "src/tasks";
+const TASKS_BASE_DIR: &str = "src/tasks";
+
+#[derive(Debug, Clone, ValueEnum)]
+enum Environment {
+    Staging,
+    Production,
+}
 
 #[derive(Parser)]
 #[command(name = "hos-ops")]
@@ -18,11 +26,14 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    New {
+    #[command(name = "new-task")]
+    NewTask {
         #[arg(short, long)]
         title: String,
         #[arg(short, long)]
         proposal_id: Option<u32>,
+        #[arg(short, long, value_enum, default_value = "staging")]
+        env: Environment,
     },
     Init {
         #[arg(short, long)]
@@ -39,8 +50,25 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::New { title, proposal_id } => generate_task(&title, proposal_id),
+        Commands::NewTask { title, proposal_id, env } => generate_task(&title, proposal_id, env),
         Commands::Init { account } => init_config(&account),
+    }
+}
+
+impl Environment {
+    fn as_str(&self) -> &str {
+        match self {
+            Environment::Staging => "staging",
+            Environment::Production => "production",
+        }
+    }
+    
+    // We Could move this to a config file
+    fn dao_contract(&self) -> &str {
+        match self {
+            Environment::Staging => "hos-root-staging.sputnik-dao.near",
+            Environment::Production => "hos-root.sputnik-dao.near",
+        }
     }
 }
 
@@ -72,15 +100,15 @@ fn load_config() -> Config {
         .unwrap_or_default()
 }
 
-fn generate_task(title: &str, proposal_id: Option<u32>) -> Result<()> {
-    let tasks_dir = Path::new(TASKS_DIR);
-    fs::create_dir_all(tasks_dir)
+fn generate_task(title: &str, proposal_id: Option<u32>, env: Environment) -> Result<()> {
+    let env_dir = Path::new(TASKS_BASE_DIR).join(env.as_str());
+    fs::create_dir_all(&env_dir)
         .context("Failed to create tasks directory")?;
 
     let config = load_config();
-    let task_number = get_next_task_number(tasks_dir)?;
+    let task_number = get_next_task_number(&env_dir)?;
     let filename = format!("{}-{}.md", task_number, sanitize_title(title));
-    let task_path = tasks_dir.join(&filename);
+    let task_path = env_dir.join(&filename);
     
     let template = load_template()?;
     let content = populate_template(
@@ -89,12 +117,13 @@ fn generate_task(title: &str, proposal_id: Option<u32>) -> Result<()> {
         task_number,
         proposal_id,
         config.account.as_deref(),
+        &env,
     );
     
     fs::write(&task_path, content)
         .context("Failed to write task file")?;
     
-    println!("✓ Created task: {}", task_path.display());
+    println!("✓ Created {} task: {}", env.as_str().to_uppercase(), task_path.display());
     if let Some(account) = config.account {
         println!("  Created by: {}", account);
     }
@@ -153,10 +182,13 @@ fn populate_template(
     number: u32,
     proposal_id: Option<u32>,
     created_by: Option<&str>,
+    env: &Environment,
 ) -> String {
     template
         .replace("{{TITLE}}", title)
         .replace("{{NUMBER}}", &number.to_string())
         .replace("{{PROPOSAL_ID}}", &proposal_id.map_or("TBD".to_string(), |id| id.to_string()))
         .replace("{{CREATED_BY}}", created_by.unwrap_or("TBD"))
+        .replace("{{ENVIRONMENT}}", &env.as_str().to_uppercase())
+        .replace("{{DAO_CONTRACT}}", env.dao_contract())
 }

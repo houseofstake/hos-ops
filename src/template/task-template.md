@@ -1,5 +1,6 @@
 # Task {{NUMBER}}: {{TITLE}}
 
+**Environment:** `{{ENVIRONMENT}}`  
 **Created by:** {{CREATED_BY}}
 
 ## Background
@@ -16,12 +17,15 @@
 
 ## Verification Steps
 
+> **⚠️ ENVIRONMENT CHECK**: This is a `{{ENVIRONMENT}}` task. Verify all contract addresses and proposals match the {{ENVIRONMENT}} environment.
+
 ### Step 1: Check the Proposal
 
 Use the NEAR CLI to retrieve the proposal:
 
 ```bash
-near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal json-args '{"id": {{PROPOSAL_ID}}}' network-config mainnet now
+# {{ENVIRONMENT}} environment
+near contract call-function as-read-only {{DAO_CONTRACT}} get_proposal json-args '{"id": {{PROPOSAL_ID}}}' network-config mainnet now
 ```
 
 ### Step 2: Decode and Verify Arguments
@@ -29,20 +33,22 @@ near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal 
 Decode the inner arguments to verify the actual parameters:
 
 ```bash
-near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal json-args '{"id": {{PROPOSAL_ID}}}' network-config mainnet now | jq '.kind.FunctionCall.actions[0].args | @base64d | fromjson'
+near contract call-function as-read-only {{DAO_CONTRACT}} get_proposal json-args '{"id": {{PROPOSAL_ID}}}' network-config mainnet now | jq '.kind.FunctionCall.actions[0].args | @base64d | fromjson'
 ```
 
 ### Step 3: Verify Target Contract
 
-- [ ] Confirm the target contract address matches expectations
+- [ ] **CRITICAL**: Confirm target contract matches {{ENVIRONMENT}} environment
 - [ ] Verify the function being called is correct
 - [ ] Check all parameters are as specified in the proposal description
+- [ ] If PRODUCTION, double-check proposal description for any STAGING indicators
 
 ### Step 4: Additional Checks
 
 - [ ] Review the proposer account
 - [ ] Verify the proposal status
 - [ ] Check voting requirements
+- [ ] Confirm no conflicting pending proposals
 
 ## Expected Results
 
@@ -53,6 +59,18 @@ near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal 
 - Proposal creation transaction: [TBD]
 
 ## Notes
+
+### Environment-Specific Considerations
+
+**For STAGING tasks:**
+- Verify staging contract addresses
+- Test thoroughly before creating production equivalent
+- Document any issues for production deployment
+
+**For PRODUCTION tasks:**
+- Ensure corresponding staging task was executed successfully
+- Extra verification of all parameters
+- Coordinate with other security council members before execution
 
 [Any additional information, warnings, or considerations]
 

@@ -19,21 +19,28 @@ This creates a `hos-ops.toml` file with your NEAR account, which will be added t
 Create a new security council task from the template:
 
 ```bash
-cargo run -- new --title "Set Lockup Contract" --proposal-id 10
+# Create a staging task (default)
+cargo run -- new-task --title "Set Lockup Contract" --proposal-id 10
+
+# Create a production task (explicit)
+cargo run -- new-task --title "Set Lockup Contract" --proposal-id 15 --env production
 ```
 
-This will generate a new task file in `src/tasks/` with automatic versioning (e.g., `1-set-lockup-contract.md`) and mark you as the creator.
+Tasks are organized by environment with independent versioning:
+- `src/tasks/staging/1-set-lockup-contract.md`
+- `src/tasks/production/1-set-lockup-contract.md`
 
 ### Commands
 
 **init** - Initialize configuration
 - `--account, -a`: Your NEAR account (required)
 
-**new** - Generate a new task
+**new-task** - Generate a new task
 - `--title, -t`: Title of the task (required)
 - `--proposal-id, -p`: NEAR DAO proposal ID (optional)
+- `--env, -e`: Environment - `staging` or `production` (default: `staging`)
 
-## Repo strructure
+## Repository Structure
 
 ```
 hos-ops/
@@ -42,17 +49,26 @@ hos-ops/
 │   ├── template/        # Task template files
 │   │   └── task-template.md
 │   └── tasks/           # Generated security council tasks
+│       ├── staging/     # Staging environment tasks
+│       │   ├── 1-{title}.md
+│       │   ├── 2-{title}.md
+│       │   └── ...
+│       └── production/  # Production environment tasks
+│           ├── 1-{title}.md
+│           ├── 2-{title}.md
+│           └── ...
 ├── Cargo.toml
 └── README.md
 ```
 
 ## Task Development
 
-Tasks are generated in the `src/tasks/` directory using the CLI tool.
+Tasks are generated in environment-specific directories (`src/tasks/staging/` or `src/tasks/production/`) using the CLI tool.
 
 Each task is a standalone markdown file that contains:
+- **Environment**: Staging or Production environment badge
 - **Background**: Context about the proposal/change
-- **Author**: The security council member who created the task
+- **Creator**: The security council member who created the task
 - **Action to be taken**: Specific actions to execute
 - **Verification steps**: Step-by-step validation process
 - **Transaction links**: Links to relevant blockchain transactions
@@ -65,6 +81,9 @@ Here's what a generated task looks like:
 
 ```markdown
 # Task 1: Set Lockup Contract
+
+**Environment:** `STAGING`
+**Created by:** kentf.near
 
 ## Background
 Proposal #10 sets the lockup contract for the NEAR House of Stake.
