@@ -1,7 +1,7 @@
-# Task {{NUMBER}}: {{TITLE}}
+# Task 1: Set Lockup Contract
 
-**Environment:** `{{ENVIRONMENT}}`  
-**Created by:** {{CREATED_BY}}
+**Environment:** `STAGING`  
+**Created by:** kentf.near
 
 ## Background
 
@@ -9,7 +9,7 @@
 
 ## Proposal Details
 
-**Proposal ID:** #{{PROPOSAL_ID}}
+**Proposal ID:** #10
 
 ## Action to be Taken
 
@@ -17,15 +17,15 @@
 
 ## Verification Steps
 
-> **⚠️ ENVIRONMENT CHECK**: This is a `{{ENVIRONMENT}}` task. Verify all contract addresses and proposals match the {{ENVIRONMENT}} environment.
+> **⚠️ ENVIRONMENT CHECK**: This is a `STAGING` task. Verify all contract addresses and proposals match the STAGING environment.
 
 ### Step 1: Check the Proposal
 
 Use the NEAR CLI to retrieve the proposal:
 
 ```bash
-# {{ENVIRONMENT}} environment
-near contract call-function as-read-only {{DAO_CONTRACT}} get_proposal json-args '{"id": {{PROPOSAL_ID}}}' network-config mainnet now
+# STAGING environment
+near contract call-function as-read-only hos-root-staging.sputnik-dao.near get_proposal json-args '{"id": 10}' network-config mainnet now
 ```
 
 ### Step 2: Decode and Verify Arguments
@@ -33,12 +33,12 @@ near contract call-function as-read-only {{DAO_CONTRACT}} get_proposal json-args
 Decode the inner arguments to verify the actual parameters:
 
 ```bash
-near contract call-function as-read-only {{DAO_CONTRACT}} get_proposal json-args '{"id": {{PROPOSAL_ID}}}' network-config mainnet now | jq '.kind.FunctionCall.actions[0].args | @base64d | fromjson'
+near contract call-function as-read-only hos-root-staging.sputnik-dao.near get_proposal json-args '{"id": 10}' network-config mainnet now | jq '.kind.FunctionCall.actions[0].args | @base64d | fromjson'
 ```
 
 ### Step 3: Verify Target Contract
 
-- [ ] **CRITICAL**: Confirm target contract matches {{ENVIRONMENT}} environment
+- [ ] **CRITICAL**: Confirm target contract matches STAGING environment
 - [ ] Verify the function being called is correct
 - [ ] Check all parameters are as specified in the proposal description
 - [ ] If PRODUCTION, double-check proposal description for any STAGING indicators
@@ -59,3 +59,4 @@ near contract call-function as-read-only {{DAO_CONTRACT}} get_proposal json-args
 - Proposal creation transaction: [TBD]
 
 ## Notes
+
