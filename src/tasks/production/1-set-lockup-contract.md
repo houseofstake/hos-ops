@@ -5,9 +5,7 @@
 
 ## Background
 
-Proposal to set the lockup contract for the staging HoS contracts.
-
-**Description:** PROD: Set lockup contract hash to `EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1` and minimum lockup deposit to 2 NEAR
+Proposal to set the lockup contract for the production HoS contracts.
 
 ### For reference: DAO proposal creation process
 
@@ -51,11 +49,11 @@ near contract call-function as-transaction $DAO_ACCOUNT add_proposal base64-args
 
 ## Proposal Details
 
-**Proposal ID:** #11
+**Proposal ID:** `11`
 
-## Action to be Taken
+**Description:** PROD: Set lockup contract hash to `EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1` and minimum lockup deposit to 2 NEAR
 
-[Describe the specific action that will be executed]
+**Expected result:** Once executed the proposal will call `set_lockup_contract` on the `venear.dao` contract. It will set the current lockup contract to hash `EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1` and the minimum lockup deposit to `2000000000000000000000000` (2 NEAR).
 
 ## Verification Steps
 
