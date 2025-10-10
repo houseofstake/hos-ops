@@ -1,11 +1,11 @@
 # Task 1: Set Lockup Contract
 
 **Environment:** `STAGING`  
-**Created by:** kentf.near
+**Created by:** ek
 
 ## Background
 
-[Provide context about this proposal/change]
+Proposal to set the lockup contract for the staging HoS contracts
 
 ## Proposal Details
 
@@ -13,7 +13,6 @@
 
 ## Action to be Taken
 
-[Describe the specific action that will be executed]
 
 ## Verification Steps
 
