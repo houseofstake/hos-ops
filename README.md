@@ -27,8 +27,8 @@ cargo run -- new-task --title "Set Lockup Contract" --proposal-id 15 --env produ
 ```
 
 Tasks are organized by environment with independent versioning:
-- `src/tasks/staging/1-set-lockup-contract.md`
-- `src/tasks/production/1-set-lockup-contract.md`
+- `tasks/staging/1-set-lockup-contract.md`
+- `tasks/production/1-set-lockup-contract.md`
 
 ### Commands
 
@@ -45,25 +45,25 @@ Tasks are organized by environment with independent versioning:
 ```
 hos-ops/
 ├── src/
-│   ├── main.rs          # CLI tool source code
-│   ├── template/        # Task template files
+│   └── main.rs          # CLI tool source code
+├── tasks/               # Task management
+│   ├── templates/       # Task template files
 │   │   └── task-template.md
-│   └── tasks/           # Generated security council tasks
-│       ├── staging/     # Staging environment tasks
-│       │   ├── 1-{title}.md
-│       │   ├── 2-{title}.md
-│       │   └── ...
-│       └── production/  # Production environment tasks
-│           ├── 1-{title}.md
-│           ├── 2-{title}.md
-│           └── ...
+│   ├── staging/         # Staging environment tasks
+│   │   ├── 1-{title}.md
+│   │   ├── 2-{title}.md
+│   │   └── ...
+│   └── production/      # Production environment tasks
+│       ├── 1-{title}.md
+│       ├── 2-{title}.md
+│       └── ...
 ├── Cargo.toml
 └── README.md
 ```
 
 ## Task Development
 
-Tasks are generated in environment-specific directories (`src/tasks/staging/` or `src/tasks/production/`) using the CLI tool.
+Tasks are generated in environment-specific directories (`tasks/staging/` or `tasks/production/`) using the CLI tool.
 
 Each task is a standalone markdown file that contains:
 - **Environment**: Staging or Production environment badge

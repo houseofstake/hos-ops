@@ -7,8 +7,8 @@ use std::fs;
 use std::path::Path;
 
 const CONFIG_FILE: &str = "hos-ops.toml";
-const TEMPLATE_PATH: &str = "src/template/task-template.md";
-const TASKS_BASE_DIR: &str = "src/tasks";
+const TEMPLATE_PATH: &str = "tasks/templates/task-template.md";
+const TASKS_BASE_DIR: &str = "tasks";
 
 #[derive(Debug, Clone, ValueEnum)]
 enum Environment {
@@ -167,7 +167,7 @@ fn load_template() -> Result<String> {
     
     if !template_path.exists() {
         bail!(
-            "Template file not found at: {}\nPlease ensure src/template/task-template.md exists.",
+            "Template file not found at: {}\nPlease ensure tasks/templates/task-template.md exists.",
             TEMPLATE_PATH
         );
     }
