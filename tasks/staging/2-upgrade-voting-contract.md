@@ -21,7 +21,7 @@ git checkout ff25d7de8af1a778b0c1b0df2084e05cff1424b8
 ./build_release.sh
 ```
 
-We're interested int the voting binary located at `res/release/voting_contract.wasm`
+We're interested in the voting binary located at `res/release/voting_contract.wasm`
 ```bash
 export CONTRACT_HASH=$(cat res/release/voting_contract.wasm | sha256sum | awk '{ print $1 }' | xxd -r -p | base58)
 echo $CONTRACT_HASH
