@@ -16,28 +16,153 @@ Two new architecture components are introduced:
 
 - The [Agora Campaign Admin Application](https://near-claim.vercel.app/).
 
-### Building Smart Contracts
+## Governance Architecture
 
-Rebuilding contracts
+To balance operational efficiency with security, the merkle claim contract is owned by a **Sputnik DAO** that acts as a proxy layer:
+
+```
+┌──────────────────┐      ┌─────────────────────┐      ┌────────────────────┐
+│   Gauntlet       │─────►│   Sputnik DAO       │─────►│   MerkleClaim      │
+│   (proposes)     │      │   (approves)        │      │   (executes)       │
+└──────────────────┘      └─────────────────────┘      └────────────────────┘
+                                   │
+                          Security Council
+                          (1 member approval
+                           for campaigns)
+```
+
+**Permission Model:**
+
+| Action | Who Can Propose | Approval Required |
+|--------|-----------------|-------------------|
+| Create campaign | Gauntlet or SC | 1 SC member |
+| Withdraw funds | Gauntlet or SC | 1 SC member |
+| Change DAO policy | SC only | 2 SC members |
+| Add/remove members | SC only | 2 SC members |
+
+---
+
+### Part 1. Building Smart Contracts
+
+### 1.1 Clone and Build
 
 ```bash
 git clone https://github.com/voteagora/near-merkle-claim
 cd near-merkle-claim
 git checkout c7587d357be507744c1e961d42f6fdc56e8803aa
 cargo near build
--> reproducible-wasm
 ```
 
-Retrieve the contract binary at `target/near/near_merkle_claim.wasm`
+### 1.2 Verify the Build
 
 ```bash
 export CONTRACT_HASH=$(cat target/near/near_merkle_claim.wasm | sha256sum | awk '{ print $1 }' | xxd -r -p | base58)
 echo $CONTRACT_HASH
 # Expected: FMgQ6iPcerbU6whoDpYrj9LbMRBEnPV3brvgmHWCMqMA
+
 ls -l target/near/near_merkle_claim.wasm
-# Size: 159744
+# Expected size: 159744 bytes
 ```
 
+**Verification Checklist:**
+
+- [ ] Contract hash matches: `FMgQ6iPcerbU6whoDpYrj9LbMRBEnPV3brvgmHWCMqMA`
+- [ ] Contract size is 159744 bytes
+
+---
+
+## Part 2: Deploy the Owner DAO
+
+The claims contract will be owned by a Sputnik DAO that provides granular access control.
+
+### 2.1 Prepare the DAO Policy
+
+```bash
+export DAO_NAME="rewards-claims"
+export SIGNER_ACCOUNT_ID="lane.near"  # Change to your SC member account
+
+export POLICY='{
+  "roles": [
+    {
+      "name": "SecurityCouncil",
+      "kind": {
+        "Group": [
+          "as.near",
+          "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
+          "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
+          "fastnear-hos.near",
+          "lane.near",
+          "root.near"
+        ]
+      },
+      "permissions": ["*:*"],
+      "vote_policy": {
+        "call": {
+          "weight_kind": "RoleWeight",
+          "quorum": "0",
+          "threshold": "1"
+        }
+      }
+    },
+    {
+      "name": "CampaignOperator",
+      "kind": {
+        "Group": ["gauntlet-hos.near"]
+      },
+      "permissions": ["call:AddProposal"],
+      "vote_policy": {}
+    }
+  ],
+  "default_vote_policy": {
+    "weight_kind": "RoleWeight",
+    "quorum": "0",
+    "threshold": "2"
+  },
+  "proposal_bond": "100000000000000000000000",
+  "proposal_period": "604800000000000",
+  "bounty_bond": "100000000000000000000000",
+  "bounty_forgiveness_period": "604800000000000"
+}'
+```
+
+### 2.2 Create the DAO via Factory
+
+```bash
+export CONFIG='{
+  "name": "'"$DAO_NAME"'",
+  "purpose": "Merkle claim contract owner DAO for NEAR rewards distribution",
+  "metadata": ""
+}'
+
+export ARGS=$(echo '{"config": '"$CONFIG"', "policy": '"$POLICY"'}' | base64 -w 0)
+
+near contract call-function as-transaction sputnik-dao.near create json-args '{
+  "name": "'"$DAO_NAME"'",
+  "args": "'"$ARGS"'"
+}' prepaid-gas '150.0 Tgas' attached-deposit '6 NEAR' \
+  sign-as $SIGNER_ACCOUNT_ID \
+  network-config mainnet sign-with-keychain send
+```
+
+### 2.3 Verify the DAO Deployment
+
+```bash
+export DAO_ACCOUNT_ID="$DAO_NAME.sputnik-dao.near"
+
+near contract call-function as-read-only $DAO_ACCOUNT_ID get_policy \
+  json-args '{}' \
+  network-config mainnet now
+```
+
+**Verification Checklist:**
+
+- [ ] DAO created at `rewards-claims.sputnik-dao.near`
+- [ ] SecurityCouncil role has all 6 members
+- [ ] CampaignOperator role has `gauntlet-hos.near`
+- [ ] `call` vote policy threshold is `1`
+- [ ] Default vote policy threshold is `2`
+
+---
 ### Deploying Smart Contracts
 
 Below is a script to deploy the claim contract by an account created by the NF with keys revoked i.e. $CLAIMS_ACCOUNT_ID.  $GAUNTLET_ACCOUNT_ID - Is becomes the owner of the claims contract and will control the campaigns.
