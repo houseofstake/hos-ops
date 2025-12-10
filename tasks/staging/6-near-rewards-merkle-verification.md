@@ -199,7 +199,7 @@ This makes the contract immutable - only the owner DAO can upgrade it.
 near account list-keys $CLAIMS_ACCOUNT_ID network-config mainnet now
 
 # Delete each full access key (repeat for each key shown)
-near account delete-keys $CLAIMS_ACCOUNT_ID public-keys '' \
+near account delete-keys $CLAIMS_ACCOUNT_ID public-keys 'ed25519:...' \
   network-config mainnet sign-with-keychain send
 
 # Verify no keys remain
@@ -298,7 +298,7 @@ near contract call-function as-transaction $DAO_ACCOUNT_ID add_proposal json-arg
     }
   }
 }' prepaid-gas '100.0 Tgas' attached-deposit '0.1 NEAR' \
-  sign-as gauntlet.near \
+  sign-as gauntlet-hos.near \
   network-config mainnet sign-with-keychain send
 ```
 
@@ -477,21 +477,21 @@ near contract call-function as-read-only $DAO_ACCOUNT_ID get_proposal \
 
 ---
 
-## Contract Addresses
+## Contract Addresses (STAGING)
 
 | Contract | Account ID | Environment |
 |----------|------------|-------------|
-| Owner DAO | `rewards-claims.sputnik-dao.near` | PRODUCTION |
-| Merkle Claim | `[TBD]` | PRODUCTION |
-| veNEAR | `venear.dao` | PRODUCTION |
+| Owner DAO | `rewards-claims.sputnik-dao.near` | STAGING/PRODUCTION |
+| Merkle Claim | `rewards-claims-staging.near` | STAGING |
+| veNEAR | `venear.staging-dao.near` | STAGING |
 
 ---
 
-## Transaction Links
+## Transaction Links (STAGING)
 
-- DAO creation: [TBD]
-- Claims contract deployment: [TBD]
-- Key deletion: [TBD]
+- DAO creation: https://nearblocks.io/txns/2in9aeqG7nCRmY3N9amzSr97DHcLWPqyjSxpwGxjnFsJ
+- Claims contract deployment: https://nearblocks.io/txns/EWUu919RcBubzFzZtwLj4WYRwwWiZP6CB9U8M45FK8af
+- Key deletion: https://nearblocks.io/txns/2iYWUUUBQRt2aH5ccSoiBqiFqnT9sfAeEJQuHN52DCu7
 
 ---
 
