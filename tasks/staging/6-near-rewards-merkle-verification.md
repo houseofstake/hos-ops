@@ -422,3 +422,81 @@ near contract call-function as-transaction $CLAIMS_CONTRACT claim json-args '{
 ```
 
 > **Important:** The `merkle_proof` must be a JSON array (not a string). No quotes around the array value.
+
+---
+
+## Troubleshooting
+
+### RPC Rate Limits
+
+If you encounter rate limit errors, use an alternative RPC endpoint:
+
+```bash
+# FASTNEAR (recommended for ad-hoc usage)
+... network-config mainnet-fastnear ...
+```
+
+### JSON Parsing Errors
+
+Ensure all JSON arrays are on a single line with no newlines:
+
+```bash
+# Compact a JSON array
+export MERKLE_PROOF=$(echo "$MERKLE_PROOF" | jq -c .)
+```
+
+### Proposal Verification Failed
+
+```bash
+# Check proposal status
+near contract call-function as-read-only $DAO_ACCOUNT_ID get_proposal \
+  json-args '{"id": '"$PROPOSAL_ID"'}' \
+  network-config mainnet now
+```
+
+---
+
+## Deployment Checklist Summary
+
+### Initial Deployment
+
+- [ ] Merkle claim contract built and hash verified
+- [ ] Owner DAO created with correct policy
+- [ ] Merkle claim contract deployed with DAO as owner
+- [ ] All access keys deleted from claims contract
+- [ ] Claims contract funded with NEAR
+
+### Per-Campaign
+
+- [ ] CSV data verified (addresses, lockups, amounts)
+- [ ] Merkle tree generated via Agora app
+- [ ] Proposal created by Gauntlet
+- [ ] Security council member verified proposal parameters
+- [ ] Security council member approved proposal
+- [ ] Campaign creation confirmed on-chain
+
+---
+
+## Contract Addresses
+
+| Contract | Account ID | Environment |
+|----------|------------|-------------|
+| Owner DAO | `rewards-claims.sputnik-dao.near` | PRODUCTION |
+| Merkle Claim | `[TBD]` | PRODUCTION |
+| veNEAR | `venear.dao` | PRODUCTION |
+
+---
+
+## Transaction Links
+
+- DAO creation: [TBD]
+- Claims contract deployment: [TBD]
+- Key deletion: [TBD]
+
+---
+
+## Notes
+
+- The Security Council can reject malicious proposals by voting `VoteReject` or `VoteRemove`
+- Campaign operators cannot withdraw funds without SC approval
+- All owner functions require going through the DAO proposal process
