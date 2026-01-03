@@ -1,4 +1,4 @@
-# Task 6: NEAR Rewards Merkle Verification
+# Task 4: NEAR Rewards Merkle Verification
 
 **Environment:** `PRODUCTION`
 
@@ -172,7 +172,7 @@ near contract call-function as-read-only $DAO_ACCOUNT_ID get_policy \
 ### 3.1 Set Environment Variables
 
 ```bash
-export CLAIMS_ACCOUNT_ID="[TBD - account created by NF]"
+export CLAIMS_ACCOUNT_ID="rewards.hos-dao.near"
 export DAO_ACCOUNT_ID="rewards-claims2.sputnik-dao.near"
 export MIN_STORAGE_DEPOSIT="100000000000000000000000"  # 0.1 NEAR
 ```
