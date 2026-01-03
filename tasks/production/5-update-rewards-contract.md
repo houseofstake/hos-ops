@@ -83,7 +83,7 @@ export MIN_STORAGE_DEPOSIT="100000000000000000000000"  # 0.1 NEAR
 ### 4.2 Create the Account
 
 ```bash
-near account create-account fund-myself $CLAIMS_ACCOUNT_ID '0.1 NEAR' autogenerate-new-keypair save-to-keychain sign-as dao network-config mainnet sign-with-mpc hos-root.sputnik-dao.near ed25519 derivation-path dao prepaid-gas '15.0 Tgas' attached-deposit '1 yoctoNEAR' submit-mpc-as-dao-proposal $SIGNER_ACCOUNT_ID 'Creating reward.dao account' prepaid-gas '10.0 Tgas' attached-deposit '1 NEAR'
+near account create-account fund-myself $CLAIMS_ACCOUNT_ID '0.1 NEAR' autogenerate-new-keypair save-to-keychain sign-as dao network-config mainnet sign-with-mpc hos-root.sputnik-dao.near ed25519 derivation-path dao prepaid-gas '15.0 Tgas' attached-deposit '1 yoctoNEAR' submit-mpc-as-dao-proposal $SIGNER_ACCOUNT_ID 'Creating '"$CLAIMS_ACCOUNT_ID"' account' prepaid-gas '10.0 Tgas' attached-deposit '1 NEAR'
 ```
 
 ### 4.3 Deploy and Initialize
@@ -142,30 +142,195 @@ Expected output:
 - [ ] All access keys deleted
 - [ ] `min_storage_deposit` is correct
 
-### 4.6 Fund the Contract
+---
 
-Transfer NEAR to the claims contract for reward distribution:
+## Part 5: Withdraw Funds from Old Contract
+
+> **WARNING:** Do NOT proceed if there is an active campaign with unclaimed rewards. Users must be able to claim their rewards before withdrawing funds.
+
+### 5.1 Check for Active Campaigns
 
 ```bash
-near tokens $SIGNER_ACCOUNT_ID send-near $CLAIMS_ACCOUNT_ID '[AMOUNT] NEAR' \
+export OLD_CLAIMS_ACCOUNT_ID="rewards.hos-dao.near"
+
+# Get the last campaign ID
+near contract call-function as-read-only $OLD_CLAIMS_ACCOUNT_ID get_last_campaign_id \
+  json-args '{}' \
+  network-config mainnet now
+
+# Check campaign details (replace CAMPAIGN_ID with the result above)
+near contract call-function as-read-only $OLD_CLAIMS_ACCOUNT_ID get_campaign \
+  json-args '{"campaign_id": CAMPAIGN_ID}' \
+  network-config mainnet now
+```
+
+The `claim_end` field is a UNIX timestamp in **nanoseconds**. To check if the campaign has ended:
+
+```bash
+# Set the claim_end value from the campaign (in nanoseconds)
+export CLAIM_END_NS=<CLAIM_END_FROM_ABOVE>
+
+# Convert to seconds and compare with current time
+export CLAIM_END_SEC=$((CLAIM_END_NS / 1000000000))
+echo "Current time:  $(date +%s) ($(date))"
+echo "Claim end:     $CLAIM_END_SEC ($(date -d @$CLAIM_END_SEC))"
+
+# Check if campaign has ended
+if [ $(date +%s) -gt $CLAIM_END_SEC ]; then
+  echo "✅ Campaign has ended - safe to proceed"
+else
+  echo "❌ Campaign is still active - DO NOT proceed"
+fi
+```
+
+If the campaign is still active, **STOP** and wait for it to end.
+
+### 5.2 Verify Owner and Check Balance
+
+```bash
+# Check the owner of the old contract
+near contract call-function as-read-only $OLD_CLAIMS_ACCOUNT_ID get_config \
+  json-args '{}' \
+  network-config mainnet now
+
+# The old contract is owned by the NEW DAO (ownership was transferred)
+# Verify owner_account_id matches $DAO_ACCOUNT_ID from Part 4
+
+# Check remaining balance
+near account view-account-summary $OLD_CLAIMS_ACCOUNT_ID network-config mainnet now
+```
+
+### 5.3 Create Proposal to Withdraw Funds
+
+```bash
+near contract call-function as-transaction $DAO_ACCOUNT_ID add_proposal \
+  json-args '{
+    "proposal": {
+      "description": "Withdraw remaining funds from old rewards contract to DAO",
+      "kind": {
+        "FunctionCall": {
+          "receiver_id": "'"$OLD_CLAIMS_ACCOUNT_ID"'",
+          "actions": [{
+            "method_name": "withdraw",
+            "args": "",
+            "deposit": "0",
+            "gas": "50000000000000"
+          }]
+        }
+      }
+    }
+  }' \
+  prepaid-gas '30.0 Tgas' \
+  attached-deposit '0.1 NEAR' \
+  sign-as $SIGNER_ACCOUNT_ID \
   network-config mainnet sign-with-keychain send
 ```
 
+### 5.4 Check and Approve Withdraw Proposal
+
+```bash
+# Record the proposal ID from the previous step
+export WITHDRAW_PROPOSAL_ID=<PROPOSAL_ID>
+
+# Verify the proposal contents
+near contract call-function as-read-only $DAO_ACCOUNT_ID get_proposal \
+  json-args '{"id": '"$WITHDRAW_PROPOSAL_ID"'}' \
+  network-config mainnet now
+```
+
+**Verify the proposal contains:**
+- `receiver_id`: `rewards.hos-dao.near` (the old claims contract)
+- `method_name`: `withdraw`
+- `deposit`: `0`
+
+```bash
+# Approve the proposal (repeat for each required signer)
+near contract call-function as-transaction $DAO_ACCOUNT_ID act_proposal \
+  json-args '{"id": '"$WITHDRAW_PROPOSAL_ID"', "action": "VoteApprove"}' \
+  prepaid-gas '150.0 Tgas' \
+  attached-deposit '0 NEAR' \
+  sign-as $SIGNER_ACCOUNT_ID \
+  network-config mainnet sign-with-keychain send
+```
+
+### 5.5 Create Proposal to Transfer Funds to New Contract
+
+After the withdraw proposal executes, the funds are now in the DAO. Create a proposal to transfer them to the new claims contract:
+
+```bash
+# Check the DAO balance to determine transfer amount
+near account view-account-summary $DAO_ACCOUNT_ID network-config mainnet now
+
+# Set the amount to transfer (in yoctoNEAR, e.g., "1000000000000000000000000" = 1 NEAR)
+export TRANSFER_AMOUNT="<AMOUNT_IN_YOCTONEAR>"
+
+near contract call-function as-transaction $DAO_ACCOUNT_ID add_proposal \
+  json-args '{
+    "proposal": {
+      "description": "Transfer funds to new rewards contract at '"$CLAIMS_ACCOUNT_ID"'",
+      "kind": {
+        "Transfer": {
+          "token_id": "",
+          "receiver_id": "'"$CLAIMS_ACCOUNT_ID"'",
+          "amount": "'"$TRANSFER_AMOUNT"'"
+        }
+      }
+    }
+  }' \
+  prepaid-gas '30.0 Tgas' \
+  attached-deposit '0.1 NEAR' \
+  sign-as $SIGNER_ACCOUNT_ID \
+  network-config mainnet sign-with-keychain send
+```
+
+### 5.6 Check and Approve Transfer Proposal
+
+```bash
+# Record the proposal ID from the previous step
+export TRANSFER_PROPOSAL_ID=<PROPOSAL_ID>
+
+# Check proposal status
+near contract call-function as-read-only $DAO_ACCOUNT_ID get_proposal \
+  json-args '{"id": '"$TRANSFER_PROPOSAL_ID"'}' \
+  network-config mainnet now
+
+# Approve the proposal (repeat for each required signer)
+near contract call-function as-transaction $DAO_ACCOUNT_ID act_proposal \
+  json-args '{"id": '"$TRANSFER_PROPOSAL_ID"', "action": "VoteApprove"}' \
+  prepaid-gas '150.0 Tgas' \
+  attached-deposit '0 NEAR' \
+  sign-as $SIGNER_ACCOUNT_ID \
+  network-config mainnet sign-with-keychain send
+```
+
+### 5.7 Verify Funds Received
+
+```bash
+near account view-account-summary $CLAIMS_ACCOUNT_ID network-config mainnet now
+```
+
+**Verification Checklist:**
+
+- [ ] No active campaigns on old contract (claim_end has passed)
+- [ ] Withdraw proposal created and approved
+- [ ] Transfer proposal created and approved
+- [ ] New claims contract has received the funds
+
 ---
 
-## Part 5: Campaign Operations
+## Part 6: Campaign Operations
 
 As in the [previous task](4-near-rewards-merkle-verification.md), this part remains unchanged.
 
 ---
 
-## Part 6: Security Council Verification & Approval
+## Part 7: Security Council Verification & Approval
 
 As in the [previous task](4-near-rewards-merkle-verification.md), this part remains unchanged.
 
 ---
 
-## Part 7: User Claims
+## Part 8: User Claims
 
 As in the [previous task](4-near-rewards-merkle-verification.md), this part remains unchanged.
 
@@ -180,7 +345,7 @@ As in the [previous task](4-near-rewards-merkle-verification.md), this part rema
 - [ ] Derived pubkey added to security council DAO
 - [ ] Merkle claim contract deployed with DAO as owner
 - [ ] All access keys deleted from claims contract
-- [ ] Claims contract funded with NEAR
+- [ ] Funds withdrawn from old contract and transferred to new contract
 
 ### Per-Campaign
 
@@ -193,7 +358,8 @@ As before.
 | Contract | Account ID | Environment |
 |----------|------------|-------------|
 | Owner DAO | `rewards-claims2.sputnik-dao.near` | PRODUCTION |
-| Merkle Claim | `rewards.dao` | PRODUCTION |
+| Merkle Claim (new) | `rewards.dao` | PRODUCTION |
+| Merkle Claim (old) | `rewards.hos-dao.near` | PRODUCTION |
 | veNEAR | `venear.dao` | PRODUCTION |
 
 ---
