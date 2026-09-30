@@ -2,3 +2,5 @@
 Cargo.lock
 hos-ops.toml
 *.swp
+
+/drafts/
