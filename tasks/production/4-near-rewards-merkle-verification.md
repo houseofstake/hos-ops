@@ -1,4 +1,4 @@
-# Task 6: NEAR Rewards Merkle Verification
+# Task 4: NEAR Rewards Merkle Verification
 
 **Environment:** `PRODUCTION`
 
@@ -172,12 +172,21 @@ near contract call-function as-read-only $DAO_ACCOUNT_ID get_policy \
 ### 3.1 Set Environment Variables
 
 ```bash
-export CLAIMS_ACCOUNT_ID="[TBD - account created by NF]"
+export CLAIMS_ACCOUNT_ID="rewards.hos-dao.near"
 export DAO_ACCOUNT_ID="rewards-claims2.sputnik-dao.near"
 export MIN_STORAGE_DEPOSIT="100000000000000000000000"  # 0.1 NEAR
 ```
 
-### 3.2 Deploy and Initialize
+### 3.2 Create the Account
+
+Note: this step requires adding the `hos-dao.near` key to the local keychain first.
+
+```bash
+near account create-account fund-myself $CLAIMS_ACCOUNT_ID '3 NEAR' autogenerate-new-keypair save-to-keychain sign-as hos-dao.near network-config mainnet sign-with-keychain send
+
+```
+
+### 3.3 Deploy and Initialize
 
 ```bash
 near contract deploy $CLAIMS_ACCOUNT_ID \
@@ -193,7 +202,7 @@ near contract deploy $CLAIMS_ACCOUNT_ID \
   network-config mainnet sign-with-keychain send
 ```
 
-### 3.3 Delete Access Keys (Critical!)
+### 3.4 Delete Access Keys (Critical!)
 
 This makes the contract immutable - only the owner DAO can upgrade it.
 
@@ -209,7 +218,7 @@ near account delete-keys $CLAIMS_ACCOUNT_ID public-keys 'ed25519:...' \
 near account list-keys $CLAIMS_ACCOUNT_ID network-config mainnet now
 ```
 
-### 3.4 Verify Deployment
+### 3.5 Verify Deployment
 
 ```bash
 near contract call-function as-read-only $CLAIMS_ACCOUNT_ID get_config \
@@ -233,7 +242,7 @@ Expected output:
 - [ ] All access keys deleted
 - [ ] `min_storage_deposit` is correct
 
-### 3.5 Fund the Contract
+### 3.6 Fund the Contract
 
 Transfer NEAR to the claims contract for reward distribution:
 
