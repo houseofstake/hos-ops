@@ -10,7 +10,7 @@ Proposal to upgrade the voting contract to v1.1.2 for the **production** HoS con
 Links:
 - Commit: `32611da14aed42127421e777eec0e98094de6d2d`
 - Github commit: https://github.com/houseofstake/house-of-stake-contracts/commit/32611da14aed42127421e777eec0e98094de6d2d
-- The Github changes: https://github.com/houseofstake/house-of-stake-contracts/compare/f3bad575341507d0c63c7e219a19a88c5a9527d2...32611da14aed42127421e777eec0e98094de6d2d
+- The Github changes: https://github.com/houseofstake/house-of-stake-contracts/compare/86ed610f90f28e10977278c62f41122b850cba91...32611da14aed42127421e777eec0e98094de6d2d
 
 ### Notable changes since v1.1.1
 
@@ -64,13 +64,13 @@ CLI command to create the proposal:
 
 ```bash
 near contract call-function as-transaction $DAO_ACCOUNT add_proposal base64-args $PROPOSAL_ARGS_B64 prepaid-gas '100.0 Tgas' attached-deposit '0.1 NEAR' sign-as $SIGNER_ACCOUNT_ID network-config mainnet
-# Proposal ID returned: 40
-# TX ID: https://nearblocks.io/txns/EDMxDWd9TV69gafbsKNtS4qarisJMzo7cDdmTBPKRMXL
+# Proposal ID returned: 41
+# TX ID: https://nearblocks.io/txns/5u3UkRw7DjWVQ7Rb7BRUugKvCfEStzudW4YEKFnweTLB
 ```
 
 ## Proposal Details
 
-**Proposal ID:** #40
+**Proposal ID:** #41
 
 **Description:** PRODUCTION: Upgrade voting contract to `1.1.2`
 
@@ -86,7 +86,7 @@ Use the NEAR CLI to retrieve the proposal:
 
 ```bash
 # PRODUCTION environment
-near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal json-args '{"id": 40}' network-config mainnet now
+near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal json-args '{"id": 41}' network-config mainnet now
 ```
 
 ### Step 2: Verify Target Contract and Parameters
@@ -119,4 +119,4 @@ near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal 
 
 - Previous task: [Task 16: PRODUCTION: Upgrade opener contract on `registrar`](./16-upgrade-registrar-opener.md)
 - Store blob transaction: https://nearblocks.io/txns/EgrxRPuNUsx3PsFnLxayaiJSQGksqW1KHCmMvBqnyxud
-- Proposal creation transaction: https://nearblocks.io/txns/EDMxDWd9TV69gafbsKNtS4qarisJMzo7cDdmTBPKRMXL
+- Proposal creation transaction: https://nearblocks.io/txns/5u3UkRw7DjWVQ7Rb7BRUugKvCfEStzudW4YEKFnweTLB
