@@ -56,24 +56,24 @@ List the actions as `[method, args, gas]`, in order. The TLA Cohort Two names co
 ```bash
 export DATA_FILE='tasks/production/data/19-tla-cohort-two-names.txt'
 export ACTIONS=$(jq -nRc '[inputs] as $names | [
-  ["update_fee_config", {config: {tla_allocation_fee_usd_micro: "1000000000", rent_tier_5_usd_micro: "10000000", rent_tier_8_usd_micro: "6666667", rent_tier_10_usd_micro: "5000000", rent_tier_12plus_usd_micro: "3333334", sub_fee_per_account_usd_micro: "0", account_creation_deposit_yocto: "12000000000000000000000", business_max_subs: 4294967295, retraction_notice_ns: "604800000000000", max_rate_move_bps: 2000, quote_slippage_bps: 527, min_near_usd_rate_micro: "100000", max_near_usd_rate_micro: "100000000", rate_update_cooldown_ns: "300000000000", max_rate_age_ns: "21600000000000"}}, "5000000000000"],
-  ["register_tlas", {tla_ids: $names, tla_type: "Open", premium_category: "Standard", licensee: null}, "185000000000000"],
-  ["activate_open_tlas", {tla_ids: ["hoot", "meteor", "legion", "rhea", "noir", "hermes"]}, "5000000000000"],
-  ["admin_set_tla_type", {tla_id: "far", tla_type: "Business", licensee: "hos-root.sputnik-dao.near"}, "5000000000000"],
-  ["admin_set_tla_type", {tla_id: "rekt", tla_type: "Business", licensee: "tattothetoo.near"}, "5000000000000"],
-  ["admin_set_tla_type", {tla_id: "hoot", tla_type: "Business", licensee: "hootname.near"}, "4000000000000"],
-  ["admin_set_tla_type", {tla_id: "meteor", tla_type: "Business", licensee: "meteorname.near"}, "4000000000000"],
-  ["admin_set_tla_type", {tla_id: "legion", tla_type: "Business", licensee: "tattothetoo.near"}, "4000000000000"],
-  ["admin_set_tla_type", {tla_id: "rhea", tla_type: "Business", licensee: "rheaname.near"}, "4000000000000"],
-  ["admin_set_tla_type", {tla_id: "noir", tla_type: "Business", licensee: "noirname.near"}, "4000000000000"],
-  ["admin_set_tla_type", {tla_id: "hermes", tla_type: "Business", licensee: "agentfilmer.near"}, "4000000000000"],
-  ["enable_business_resale", {tla_id: "rekt"}, "4000000000000"],
-  ["enable_business_resale", {tla_id: "hoot"}, "4000000000000"],
-  ["enable_business_resale", {tla_id: "meteor"}, "4000000000000"],
-  ["enable_business_resale", {tla_id: "legion"}, "4000000000000"],
-  ["enable_business_resale", {tla_id: "rhea"}, "4000000000000"],
-  ["enable_business_resale", {tla_id: "noir"}, "4000000000000"],
-  ["enable_business_resale", {tla_id: "hermes"}, "4000000000000"]
+  ["update_fee_config", {config: {tla_allocation_fee_usd_micro: "1000000000", rent_tier_5_usd_micro: "10000000", rent_tier_8_usd_micro: "6666667", rent_tier_10_usd_micro: "5000000", rent_tier_12plus_usd_micro: "3333334", sub_fee_per_account_usd_micro: "0", account_creation_deposit_yocto: "12000000000000000000000", business_max_subs: 4294967295, retraction_notice_ns: "604800000000000", max_rate_move_bps: 2000, quote_slippage_bps: 527, min_near_usd_rate_micro: "100000", max_near_usd_rate_micro: "100000000", rate_update_cooldown_ns: "300000000000", max_rate_age_ns: "21600000000000"}}, "2600000000000"],
+  ["register_tlas", {tla_ids: $names, tla_type: "Open", premium_category: "Standard", licensee: null}, "214500000000000"],
+  ["activate_open_tlas", {tla_ids: ["hoot", "meteor", "legion", "rhea", "noir", "hermes"]}, "4400000000000"],
+  ["admin_set_tla_type", {tla_id: "far", tla_type: "Business", licensee: "hos-root.sputnik-dao.near"}, "2900000000000"],
+  ["admin_set_tla_type", {tla_id: "rekt", tla_type: "Business", licensee: "tattothetoo.near"}, "2900000000000"],
+  ["admin_set_tla_type", {tla_id: "hoot", tla_type: "Business", licensee: "hootname.near"}, "2900000000000"],
+  ["admin_set_tla_type", {tla_id: "meteor", tla_type: "Business", licensee: "meteorname.near"}, "2900000000000"],
+  ["admin_set_tla_type", {tla_id: "legion", tla_type: "Business", licensee: "tattothetoo.near"}, "2900000000000"],
+  ["admin_set_tla_type", {tla_id: "rhea", tla_type: "Business", licensee: "rheaname.near"}, "2900000000000"],
+  ["admin_set_tla_type", {tla_id: "noir", tla_type: "Business", licensee: "noirname.near"}, "2900000000000"],
+  ["admin_set_tla_type", {tla_id: "hermes", tla_type: "Business", licensee: "agentfilmer.near"}, "2900000000000"],
+  ["enable_business_resale", {tla_id: "rekt"}, "2900000000000"],
+  ["enable_business_resale", {tla_id: "hoot"}, "2900000000000"],
+  ["enable_business_resale", {tla_id: "meteor"}, "2900000000000"],
+  ["enable_business_resale", {tla_id: "legion"}, "2900000000000"],
+  ["enable_business_resale", {tla_id: "rhea"}, "2900000000000"],
+  ["enable_business_resale", {tla_id: "noir"}, "2900000000000"],
+  ["enable_business_resale", {tla_id: "hermes"}, "2900000000000"]
 ]' $DATA_FILE)
 ```
 
@@ -89,10 +89,10 @@ export PROPOSAL_ARGS=$(jq -nc \
   '{proposal: {description: $description, kind: {FunctionCall: {receiver_id: $receiver_id,
     actions: ($actions | map({method_name: .[0], args: (.[1] | tojson | @base64), deposit: "1", gas: .[2]}))}}}}')
 printf '%s' "$PROPOSAL_ARGS" | shasum -a 256
-# Expected: 6e7b071d22eb63eb8edc8ef8f5d9287bd9a7de734d41197dd7d248e8be023afd  -
+# Expected: 70816cf684c8b29b76551b19514b58d12ac8ef9c7dd347ea4b5306f89a31d116  -
 export PROPOSAL_ARGS_B64=$(printf '%s' "$PROPOSAL_ARGS" | base64 | tr -d '\n')
 printf '%s' "$PROPOSAL_ARGS_B64" | shasum -a 256
-# Expected: f4bcbb169c8e163d6199c1d55ae21f18cdbf16fc69697dc47aa6d411e6735d4a  -
+# Expected: 868471b8178e370a135189a5092dad435191a29f01f2e27133421e9c8c154164  -
 ```
 
 CLI command to create the proposal:
