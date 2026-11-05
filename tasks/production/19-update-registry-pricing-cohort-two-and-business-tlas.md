@@ -102,7 +102,7 @@ export DAO_ACCOUNT="hos-root.sputnik-dao.near"
 export SIGNER_ACCOUNT_ID="norfolks.near"
 near contract call-function as-transaction $DAO_ACCOUNT add_proposal base64-args $PROPOSAL_ARGS_B64 prepaid-gas '100.0 Tgas' attached-deposit '0.1 NEAR' sign-as $SIGNER_ACCOUNT_ID network-config mainnet
 # Proposal ID returned: 43
-# TX ID: [TBD]
+# TX ID: https://nearblocks.io/txns/8ZnUJWoMefECY41gkXAUYjYJ4h6o9xroGAQFMT4sKE1r
 ```
 
 ## Proposal Details
@@ -200,4 +200,4 @@ diff <(near contract call-function as-read-only registry.hos get_fee_config json
 ## Transaction Links
 
 - Previous task: [Task 18: PRODUCTION: Rotate a recovery watcher and the recovery attestation key on `rec.hos`](./18-rotate-rec-hos-watcher-and-attestation-key.md)
-- Proposal creation transaction: [TBD]
+- Proposal creation transaction: https://nearblocks.io/txns/8ZnUJWoMefECY41gkXAUYjYJ4h6o9xroGAQFMT4sKE1r

@@ -53,13 +53,13 @@ CLI command to create the proposal:
 export DAO_ACCOUNT="hos-root.sputnik-dao.near"
 export SIGNER_ACCOUNT_ID="norfolks.near"
 near contract call-function as-transaction $DAO_ACCOUNT add_proposal base64-args $PROPOSAL_ARGS_B64 prepaid-gas '100.0 Tgas' attached-deposit '0.1 NEAR' sign-as $SIGNER_ACCOUNT_ID network-config mainnet
-# Proposal ID returned: [TBD]
-# TX ID: [TBD]
+# Proposal ID returned: 44
+# TX ID: https://nearblocks.io/txns/CQvtEkFTxReThmFuTX997mDUfhscySvNm3cETb7RjXqi
 ```
 
 ## Proposal Details
 
-**Proposal ID:** #[TBD]
+**Proposal ID:** #44
 
 **Description:** PRODUCTION: Approve TLA Cohort Two batch on `registrar`
 
@@ -74,14 +74,13 @@ near contract call-function as-transaction $DAO_ACCOUNT add_proposal base64-args
 Use the NEAR CLI to retrieve the proposal:
 
 ```bash
-export PROPOSAL=$(near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal json-args '{"id": [TBD]}' network-config mainnet now 2>/dev/null)
-printf '%s' "$PROPOSAL" | jq '{description, status, kind: {receiver_id: .kind.FunctionCall.receiver_id, actions: [.kind.FunctionCall.actions[] | {method_name, deposit, gas}]}}'
+near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal json-args '{"id": 44}' network-config mainnet now
 ```
 
 Decode the inner arguments:
 
 ```bash
-printf '%s' "$PROPOSAL" | jq '.kind.FunctionCall.actions[0].args | @base64d | fromjson'
+near contract call-function as-read-only hos-root.sputnik-dao.near get_proposal json-args '{"id": 44}' network-config mainnet now | jq '.kind.FunctionCall.actions[0].args | @base64d | fromjson'
 # Expected:
 # {
 #   "batch_id": 1,
@@ -163,4 +162,4 @@ EOF
 ## Transaction Links
 
 - Previous task: [Task 19: PRODUCTION: Close `far`, update name prices, register TLA Cohort Two and set up business TLAs on `registry.hos`](./19-update-registry-pricing-cohort-two-and-business-tlas.md)
-- Proposal creation transaction: [TBD]
+- Proposal creation transaction: https://nearblocks.io/txns/CQvtEkFTxReThmFuTX997mDUfhscySvNm3cETb7RjXqi
